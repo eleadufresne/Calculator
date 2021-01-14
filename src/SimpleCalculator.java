@@ -16,18 +16,15 @@ import javax.swing.border.LineBorder;
 //Coder : Elea Dufresne 
 //Date: 2020-07-17
 
-//Note: This calculator allows the user to put multiple period in a given number which is problematic
-
    public class SimpleCalculator extends JFrame implements ActionListener{
-	
     // Panel (container)
         JPanel container = new JPanel();
-
     // Display screen
         JLabel screen = new JLabel();
-   
     //Commands and result
-         String num1, op, num2;
+        String num1, op, num2;
+    //Checks if there is already a dot
+        private boolean isDot = false;
 
     // Buttons
      Button btn0 = new Button("0"); 
@@ -48,7 +45,7 @@ import javax.swing.border.LineBorder;
      Button add = new Button("+");
      Button subtract = new Button("-");
      Button multiply = new Button("x");
-     Button divide = new Button("�");
+     Button divide = new Button("÷");
 
 
    public SimpleCalculator() {
@@ -164,18 +161,37 @@ import javax.swing.border.LineBorder;
         if ( command.charAt(0)>='0' && command.charAt(0)<='9' || command.charAt(0) == '.' ) {
     	    //if an operator has been pressed
     	    if(!op.equals("")) {
-               num2 = num2 + command;
-               screen.setText(num2 + "  ");
+                if(command.charAt(0) == '.' && isDot){
+                //prevents having two dots in a given number
+                } else if(command.charAt(0) == '.' && !isDot){
+                    num2 = num2 + command;
+                    screen.setText(num2 + "  ");
+                    isDot=true;
+                }else{
+                    num2 = num2 + command;
+                    screen.setText(num2 + "  ");
+                }
         //if no operator was pressed prior to this number
         }else
-                num1 = num1 + command;  screen.setText(num1+"  ");
+            if(command.charAt(0) == '.' && isDot){
+
+            }else if(command.charAt(0) == '.' && !isDot){
+                num1 = num1 + command;
+                screen.setText(num1+"  ");
+                isDot=true;
+            }else {
+                num1 = num1 + command;
+                screen.setText(num1 + "  ");
+            }
         }//if C is pressed
         else if ( command.charAt(0)=='C' ) {
     	//everything is reset
     	    num1=op=num2= "";
     	    screen.setText("");
+            isDot=false;
         }//if equal is pressed
         else if ( command.charAt(0)=='=' )  {
+            isDot=false;
             //if a given operator was pressed before the equal
             if ( op.equals("+") )  {
     	                                      num1=String.valueOf(Double.valueOf(num1)+Double.valueOf(num2));
@@ -191,15 +207,16 @@ import javax.swing.border.LineBorder;
     	                                      op=num2="";
     	                                      screen.setText(num1+"  ");
     
-            } else if ( op.equals("�") && !(num2.equals("0")) )  {
+            } else if ( op.equals("÷") && !(num2.equals("0")) )  {
     	                                      num1=String.valueOf(Double.valueOf(num1)/Double.valueOf(num2));
     	                                      op=num2="";
     	                                      screen.setText(num1+"  ");
-            } else if (op.equals("�") && num2.equals("0"))  {
+            } else if (op.equals("÷") && num2.equals("0"))  {
     	                                     num1=op=num2="";
     	                                     screen.setText("ERROR  "); 
             }
         } else {
+            isDot=false;
             //if no second number was pressed
     	    if( op.equals("") || num2.equals(""))	op=command; //assures that op is an operator
             //else evaluate
@@ -223,12 +240,12 @@ import javax.swing.border.LineBorder;
                     num2 = "";
                     screen.setText(num1+"  ");
 
-                }else if ( op.equals("�") && !(num2.equals("0")) )  {
+                }else if ( op.equals("÷") && !(num2.equals("0")) )  {
                     num1=String.valueOf(Double.valueOf(num1)/Double.valueOf(num2));
                     op = command;
                     num2 = "";
                     screen.setText(num1+"  ");
-                }else if (op.equals("�") && num2.equals("0"))  {
+                }else if (op.equals("÷") && num2.equals("0"))  {
                     num1=op=num2="";
                     screen.setText("ERROR  ");
                 }
