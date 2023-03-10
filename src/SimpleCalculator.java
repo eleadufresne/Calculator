@@ -73,8 +73,9 @@ public class SimpleCalculator extends JFrame implements ActionListener {
         buttonPanel.setLayout(grid1);
 
         // instantiate the numpad
+        int[] numLayout = {7, 8, 9, 4, 5, 6, 1, 2, 3, 0};
         for(int i=0; i<10; i++) {
-            numbers[i] = new Button(Integer.toString(i));
+            numbers[i] = new Button(Integer.toString(numLayout[i]));
             numbers[i].addActionListener(this);
             buttonPanel.add(numbers[i]);
         }
@@ -101,10 +102,10 @@ public class SimpleCalculator extends JFrame implements ActionListener {
         multiply.addActionListener(this);
         divide.addActionListener(this);
         operators.add(C);
-        operators.add(add);
-        operators.add(subtract);
-        operators.add(multiply);
         operators.add(divide);
+        operators.add(multiply);
+        operators.add(subtract);
+        operators.add(add);
         // format and then add the panel to the container
         operators.setBorder(new EmptyBorder(20, 0, 20, 40));
         operators.setPreferredSize(new Dimension(125, 600));
@@ -116,33 +117,33 @@ public class SimpleCalculator extends JFrame implements ActionListener {
     }
 
     // helper method for setting the screen display
-    private void setDisplay(String command, String num){
-        if (command.charAt(0) == '.' && hasDot) {
+    private String setDisplay(String cmd, String num){
         // if we are not introducing a second dot
-        } else if (command.charAt(0) == '.' && !hasDot) {
-            num = num + command;
+        if (cmd.charAt(0) != '.') {
+            num += cmd;
+            screen.setText(num + "  ");
+        } else if ( !hasDot ){
+            num += cmd;
             screen.setText(num + "  ");
             hasDot = true;
-        } else {
-            num = num + command;
-            screen.setText(num + "  ");
         }
+        return num;
     }
 
-    private void compute(String cmd){
+    private void compute(String operator){
         if (op.equals("+")) {
             num1 = String.valueOf(Double.parseDouble(num1) + Double.parseDouble(num2));
-            op = cmd;
+            op = operator;
             num2 = "";
             screen.setText(num1 + "  ");
         } else if (op.equals("-")) {
             num1 = String.valueOf(Double.parseDouble(num1) - Double.parseDouble(num2));
-            op = cmd;
+            op = operator;
             num2 = "";
             screen.setText(num1 + "  ");
         } else if (op.equals("x")) {
             num1 = String.valueOf(Double.parseDouble(num1) * Double.parseDouble(num2));
-            op = cmd;
+            op = operator;
             num2 = "";
             screen.setText(num1 + "  ");
         } else if (op.equals("÷")) {
@@ -152,7 +153,7 @@ public class SimpleCalculator extends JFrame implements ActionListener {
                 screen.setText("ERROR : NaN");
             } else {
                 num1 = String.valueOf(Double.parseDouble(num1) / Double.parseDouble(num2));
-                op = cmd;
+                op = operator;
                 num2 = "";
                 screen.setText(num1 + "  ");
             }
@@ -160,82 +161,31 @@ public class SimpleCalculator extends JFrame implements ActionListener {
     }
 
     //action listener interface's method
-    public void actionPerformed(ActionEvent arg0) {
+    public void actionPerformed(ActionEvent action) {
         // button the user pressed
-        String command = arg0.getActionCommand();
+        String command = action.getActionCommand();
         // if the command is a digit or a dot
         if (command.charAt(0) >= '0' && command.charAt(0) <= '9' || command.charAt(0) == '.') {
-            // if no operator was pressed before to this digit
-            if (op.equals("")) setDisplay(command, num1);
-                // if an operator had been pressed
-            else setDisplay(command, num2);
-        // if C was pressed
+            // check if an operator has been pressed
+            if (op.equals("")) this.num1 = setDisplay(command, num1);
+            else this.num2 = setDisplay(command, num2);
+        // if C was pressed, reset everything
         } else if (command.charAt(0) == 'C') {
-            // reset everything
             num1 = op = num2 = "";
             screen.setText("");
             hasDot = false;
         } // if the equal operator is pressed
         else if (command.charAt(0) == '=') {
             // perform the computation
-            hasDot = false;
-            if (op.equals("+")) {
-                num1 = String.valueOf(Double.parseDouble(num1) + Double.parseDouble(num2));
-                op = num2 = "";
-                screen.setText(num1 + "  ");
-            } else if (op.equals("-")) {
-                num1 = String.valueOf(Double.parseDouble(num1) - Double.parseDouble(num2));
-                op = num2 = "";
-                screen.setText(num1 + "  ");
-            } else if (op.equals("x")) {
-                num1 = String.valueOf(Double.parseDouble(num1) * Double.parseDouble(num2));
-                op = num2 = "";
-                screen.setText(num1 + "  ");
-            } else if (op.equals("÷")) {
-                // edge case : we are trying to divide by zero
-                if( num2.equals("0")) {
-                    num1 = op = num2 = "";
-                    screen.setText("ERROR : NaN");
-                } else {
-                    num1 = String.valueOf(Double.parseDouble(num1) / Double.parseDouble(num2));
-                    op = num2 = "";
-                    screen.setText(num1 + "  ");
-                }
-            }
+            compute("");
         // if the command is an operator
         } else {
             hasDot = false;
             if (op.equals("") || num2.equals(""))
                 op = command;
-            else {
-                if (op.equals("+")) {
-                    num1 = String.valueOf(Double.parseDouble(num1) + Double.parseDouble(num2));
-                    op = command;
-                    num2 = "";
-                    screen.setText(num1 + "  ");
-
-                } else if (op.equals("-")) {
-                    num1 = String.valueOf(Double.parseDouble(num1) - Double.parseDouble(num2));
-                    op = command;
-                    num2 = "";
-                    screen.setText(num1 + "  ");
-
-                } else if (op.equals("x")) {
-                    num1 = String.valueOf(Double.parseDouble(num1) * Double.parseDouble(num2));
-                    op = command;
-                    num2 = "";
-                    screen.setText(num1 + "  ");
-
-                } else if (op.equals("÷") && !(num2.equals("0"))) {
-                    num1 = String.valueOf(Double.parseDouble(num1) / Double.parseDouble(num2));
-                    op = command;
-                    num2 = "";
-                    screen.setText(num1 + "  ");
-                } else if (op.equals("÷") && num2.equals("0")) {
-                    num1 = op = num2 = "";
-                    screen.setText("ERROR  ");
-                }
-            }//continues to do operations even if equals was not pressed
+            else
+                compute(command);
+            // continue to do operations if equals was not pressed
             screen.setText(num1 + "  ");
         }
     }
